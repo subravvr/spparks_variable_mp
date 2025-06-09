@@ -45,6 +45,7 @@ class DiagSinterDensity : public Diag {
   int xstart_density, xend_density;
   int ystart_density, yend_density;
   int zstart_density, zend_density;
+
 };
 
 }

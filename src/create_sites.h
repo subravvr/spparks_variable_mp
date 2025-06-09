@@ -26,7 +26,7 @@ CommandStyle(create_sites,CreateSites)
 #elif SPPARKS_UNORDERED_MAP
 #include <unordered_map>
 #else
-#include <tr1/unordered_map>
+#include <unordered_map>
 #endif
 
 namespace SPPARKS_NS {
@@ -91,8 +91,8 @@ class CreateSites : protected Pointers {
   typedef std::unordered_map<tagint,int> MyHash;
   typedef std::unordered_map<tagint,int>::iterator MyIterator;
 #else
-  typedef std::tr1::unordered_map<tagint,int> MyHash;
-  typedef std::tr1::unordered_map<tagint,int>::iterator MyIterator;
+  typedef std::unordered_map<tagint,int> MyHash;
+  typedef std::unordered_map<tagint,int>::iterator MyIterator;
 #endif
 
   // local methods

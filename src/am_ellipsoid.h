@@ -25,20 +25,26 @@ namespace pool_shape {
       private:
          // Parameters 
          // Const is good!
-         const double _p_width, _p_depth, _tail_length, _cap_height, _HAZ_width, _tail_HAZ;
+         const double _p_width, _p_depth, _p_cap, _tail_length, _cap_height, _HAZ_width, _tail_HAZ;
 
       public:
-         AmEllipsoid(double p_width, double p_depth, double tail_length, double cap_height, double HAZ_width, double tail_HAZ):
-         	_p_width(p_width), _p_depth(p_depth), _tail_length(tail_length), _cap_height(cap_height), _HAZ_width(HAZ_width), _tail_HAZ(tail_HAZ) {}
+         AmEllipsoid(double p_width, double p_depth, double p_cap, double tail_length, double cap_height, double HAZ_width, double tail_HAZ):
+         	_p_width(p_width), _p_depth(p_depth), _p_cap(p_cap), _tail_length(tail_length), _cap_height(cap_height), _HAZ_width(HAZ_width), _tail_HAZ(tail_HAZ) {}
 
          virtual ~AmEllipsoid(){}
          
          
          bool is_inside(const double *XYZ) const {
         	double active_p_length;
+	  	double active_p_height;
         	
         	//If z is positive, we're above the current layer and can't be inside
-        	if (XYZ[2] > 0) return false;
+        		 if (XYZ[2] > 0) {
+			 	active_p_height = _p_cap;
+			 }
+		   	 else {
+			 	active_p_height = _p_depth;
+			 }
         	
         	//Change active_p_length depending on whether XYZ[1] is pos or neg
 			 if (XYZ[0] < 0) {
@@ -48,13 +54,14 @@ namespace pool_shape {
 			 	active_p_length = _cap_height;
 			 }		        	
             
-            return pow(XYZ[1]/(_p_width * 0.5),2) + pow(XYZ[0]/active_p_length,2) + pow(XYZ[2]/_p_depth,2) < 1.0;
+            return pow(XYZ[1]/(_p_width * 0.5),2) + pow(XYZ[0]/active_p_length,2) + pow(XYZ[2]/active_p_height,2) < 1.0;
          }
 
 
          virtual double distance(const double *XYZ) const {
 
 			 double active_p_length;
+		   	 double active_p_height;
 			 int vector_length;
 			 double d = -1.0;
 			 double working_tail_haz = _tail_HAZ - _tail_length;
@@ -69,6 +76,14 @@ namespace pool_shape {
 			 }
 			 else {
 			 	active_p_length = _cap_height;
+			 }
+			 
+			 //Change active_p_height depending on whether XYZ[2] is pos or neg
+			 if (XYZ[2] < 0) {
+			 	active_p_height = _p_depth;	
+			 }
+			 else {
+			 	active_p_height = _p_cap;
 			 }			
 			 
 			 //Determine the length from the melt pool center to our point.
@@ -81,7 +96,7 @@ namespace pool_shape {
 			//We should be able to return distance for any coordinate (although this would be expensive for far away points)
 			for(int i = 0; i < vector_length; i++) {
 			
-				if (pow(XYZ[1]/(_p_width * 0.5 + i),2) + pow(XYZ[0]/(active_p_length + i),2) + pow(XYZ[2]/(_p_depth + i),2) <= 1) {
+				if (pow(XYZ[1]/(_p_width * 0.5 + i),2) + pow(XYZ[0]/(active_p_length + i),2) + pow(XYZ[2]/(active_p_height + i),2) <= 1) {
 					
 					//Smallest shell that the point is inside
 					d = i;

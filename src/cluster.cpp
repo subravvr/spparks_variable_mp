@@ -19,9 +19,6 @@ using namespace SPPARKS_NS;
 
 Cluster::Cluster(int id, int iv, double dv, double vol,
 		 double cx_in, double cy_in, double cz_in,
-		 double xlo_in, double xhi_in,
-		 double ylo_in, double yhi_in,
-		 double zlo_in, double zhi_in,
 		 int nn, double* neighs, double* pbcs) {
   global_id = id;
   ivalue = iv;
@@ -30,12 +27,6 @@ Cluster::Cluster(int id, int iv, double dv, double vol,
   cx = cx_in;
   cy = cy_in;
   cz = cz_in;
-  xlo = xlo_in;
-  xhi = xhi_in;
-  ylo = ylo_in;
-  yhi = yhi_in;
-  zlo = zlo_in;
-  zhi = zhi_in;
   pbcflagsself[0] = pbcflagsself[1] = pbcflagsself[2] = 0;
   nneigh = nn;
   if (nneigh == 0) {
@@ -65,12 +56,6 @@ Cluster& Cluster::operator=(const Cluster& c) {
   cx = c.cx;
   cy = c.cy;
   cz = c.cz;
-  xlo = c.xlo;
-  xhi = c.xhi;
-  ylo = c.ylo;
-  yhi = c.yhi;
-  zlo = c.zlo;
-  zhi = c.zhi;
   pbcflagsself[0] = pbcflagsself[1] = pbcflagsself[2] = 0;
   nneigh = c.nneigh;
   if (nneigh == 0) {
@@ -168,7 +153,7 @@ void Cluster::add_pbcflags(int id, int* pbcflags_in) {
 } 
   
 void Cluster::print(FILE* fp) {
-  fprintf(fp,"%d %d %g %g %g %g %g %g %g %g %g %g %g %d ",global_id,ivalue,dvalue,volume,cx,cy,cz,xlo,xhi,ylo,yhi,zlo,zhi,nneigh);
+  fprintf(fp,"%d %d %g %g %g %g %g %d ",global_id,ivalue,dvalue,volume,cx,cy,cz,nneigh);
   for (int ineigh = 0; ineigh < nneigh; ineigh++) {
     fprintf(fp,"%d ",neighlist[ineigh]);
   }

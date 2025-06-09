@@ -19,13 +19,9 @@
 #include <vector>
 #include <cmath>
 #include <tuple>
-#include <array>
-#include <limits>
 
 using std::vector;
 using std::tuple;
-using std::array;
-using std::numeric_limits;
 
 namespace RASTER {
 
@@ -42,11 +38,10 @@ namespace pool_shape {
 
 }
 
-
 class Point {
 
 private:
-   array<double,3> p{0.0,0.0,0.0};
+   double p[3]={0.0,0.0,0.0};
 
 public:
    Point() = default;
@@ -59,7 +54,6 @@ public:
 	inline Point(double a, double b) : p{a,b,0.0} {}
 	inline Point(double a, double b, double c) : p{a,b,c} {}
 	inline Point(const double q[3]) : p{q[0],q[1],q[2]} {}
-	inline Point(const array<double,3>& q) : p{q[0],q[1],q[2]} {}
 	inline double operator[](int c) const { return p[c%3]; }
 
 	inline double squared() const {
@@ -67,82 +61,11 @@ public:
 		return x*x+y*y+z*z;
 	}
 
-	inline bool operator<=(const Point& r) const {
-		return (
-            (p[0]<=r[0]) &&
-            (p[1]<=r[1]) &&
-            (p[2]<=r[2])
-            );
-
-	}
-
-	inline bool operator<(const Point& r) const {
-		return (
-            (p[0]<r[0]) &&
-            (p[1]<r[1]) &&
-            (p[2]<r[2])
-            );
-	}
-
-
    friend std::ostream& operator<<(std::ostream &os, const Point &p)  {
       os << p[0] << ", " << p[1] << ", " << p[2] << std::endl;
       return os;
    }
 
-};
-
-class rectangular_range {
-public:
-   typedef double value_type;
-	/*
-	 * default constructor gives largest possible range
-	 */
-	rectangular_range()
-	:low(-numeric_limits<value_type>::max()),high(numeric_limits<value_type>::max()){}
-
-	rectangular_range(const Point& a, const Point& b)
-	: low(a), high(b) {}
-
-	rectangular_range(Point&& a, const Point& b)
-	: low(a), high(b) {}
-
-	rectangular_range(const Point& a, Point&& b)
-	: low(a), high(b) {}
-
-	rectangular_range(Point&& a, Point&& b)
-	: low(a), high(b) {}
-
-	rectangular_range(const Point& c, value_type r)
-	: low(c[0]-r,c[1]-r,c[2]-r), high(c[0]+r,c[1]+r,c[2]+r) {}
-
-	rectangular_range& operator=(const rectangular_range&) = default;
-	rectangular_range& operator=(      rectangular_range&&) = default;
-	rectangular_range(const rectangular_range&) = default;
-	rectangular_range(      rectangular_range&&) = default;
-
-	bool contains(const Point& p) const {
-		return ((low<=p) && (p<=high));
-	}
-
-	bool contains(const rectangular_range&r) const {
-		return ((low<=r.get_low()) && (r.get_high() <= high));
-	}
-
-	bool intersects(const rectangular_range&r) const {
-		return (!(high<r.get_low()) && !(r.get_high()<low));
-	}
-
-	Point get_low() const { return low; }
-	Point get_high() const { return high; }
-
-	friend std::ostream& operator<<(std::ostream &os, const rectangular_range& r){
-		os << r.get_low() << r.get_high();
-		return os;
-	}
-
-private:
-	Point low, high;
 };
 
 
@@ -166,7 +89,7 @@ class Path {
       double distance=0.0, speed=0.0;
 
    public:
-      Path(const Point& a, const Point& b, double velocity): 
+      Path(const Point& a, const Point& b, double velocity):
         start(a), end(b), speed(velocity) {
     	  Point dr(b[0]-a[0],b[1]-a[1],0);
     	  distance=std::sqrt(dr.squared());
@@ -209,7 +132,7 @@ class Pass {
       Pass(Pass&& p) = default;
       Pass& operator=(const Pass& p) = default;
       Pass& operator=(Pass&& p) = default;
-      Pass(DIR d, double vel, double h, double oh): 
+      Pass(DIR d, double vel, double h, double oh):
          dir(d), speed(vel),  hatch_spacing(h), overhatch(oh) {}
       DIR get_dir() const { return dir; }
       double get_speed() const { return speed; }
@@ -259,8 +182,8 @@ class Layer {
       Layer() : thickness(0), distance_traveled(0.0), position(), paths(), active_path_ptr(-1) {}
 
       Layer(const vector<Path>& _paths, int _thickness) :
-         thickness(_thickness), 
-         distance_traveled(0.0), 
+         thickness(_thickness),
+         distance_traveled(0.0),
          position(_paths[0].get_start()),
          paths(_paths),
          active_path_ptr(0) {
@@ -270,10 +193,10 @@ class Layer {
             }
       }
 
-      Layer(const Layer& c) : thickness(c.thickness), distance_traveled(c.distance_traveled), 
-                              position(c.get_position()), paths(c.paths), 
-                              active_path_ptr(c.active_path_ptr) 
-      { 
+      Layer(const Layer& c) : thickness(c.thickness), distance_traveled(c.distance_traveled),
+                              position(c.get_position()), paths(c.paths),
+                              active_path_ptr(c.active_path_ptr)
+      {
          //printf("Layer(const Layer&c) copy constuctor invoked\n");
          thickness=c.get_thickness();
          distance_traveled=c.distance_traveled;
@@ -281,7 +204,7 @@ class Layer {
          paths=c.paths;
          active_path_ptr=c.active_path_ptr;
       }
-      
+
       Layer& operator=(const Layer& rhs) {
 
          //printf("Layer& operator=(const Layer& rhs) invoked\n");
@@ -323,8 +246,8 @@ class Layer {
 
    	bool move(double dt) {
          /**
-          * Moves pool position along current path.  
-          * If pool move is successful, function return 'true'; 
+          * Moves pool position along current path.
+          * If pool move is successful, function return 'true';
           *    Pool position is computed and relative to SPPARKS coordinate
           *    system
           * Else If path distance has already been traveled returns 'false';
@@ -343,7 +266,7 @@ class Layer {
             Point dp(dv*unit_dir[0],dv*unit_dir[1]);
             // Create new position; copy into temporary;
             Point tmp(position[0]+dp[0],position[1]+dp[1]);
-            // Assign new position 
+            // Assign new position
             position=tmp;
          } else {
             // No move on previous path; check and prepare for next path

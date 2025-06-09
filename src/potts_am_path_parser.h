@@ -5,7 +5,7 @@
 
    Copyright (2008) Sandia Corporation.  Under the terms of Contract
    DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-   certain rights in this software.  This software is distributed under 
+   certain rights in this software.  This software is distributed under
    the GNU General Public License.
 
    See the README file in the top-level SPPARKS directory.
@@ -21,6 +21,7 @@
 #include "random_park.h"
 #include "app_potts.h"
 #include "am_raster.h"
+#include "am_thermalfield_raster.h"
 
 using std::map;
 using std::vector;
@@ -42,11 +43,11 @@ typedef tuple<double,double,double,double> ComputationalVolume;
 public:
    PottsAmPathParser(class SPPARKS *, int, char **);
    void print_paths (
-      const string& filename, 
-      int num_layers, 
+      const string& filename,
+      int num_layers,
       int zstart,
-      int melt_depth, 
-      int width_haz, 
+      int melt_depth,
+      int width_haz,
       int depth_haz) const;
 
 protected:

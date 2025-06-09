@@ -5,7 +5,7 @@
 
    Copyright (2008) Sandia Corporation.  Under the terms of Contract
    DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains
-   certain rights in this software.  This software is distributed under 
+   certain rights in this software.  This software is distributed under
    the GNU General Public License.
 
    See the README file in the top-level SPPARKS directory.
@@ -32,6 +32,7 @@
 #include <iomanip>
 #include <limits>
 #include "am_raster.h"
+#include "am_thermalfield_raster.h"
 #include "potts_am_path_parser.h"
 
 
@@ -41,10 +42,10 @@ using RASTER::DIR;
 
 /* ---------------------------------------------------------------------- */
 
-PottsAmPathParser::PottsAmPathParser(SPPARKS *spk, int narg, char **arg) : 
+PottsAmPathParser::PottsAmPathParser(SPPARKS *spk, int narg, char **arg) :
   AppPotts(spk,narg,arg), random_park(ranmaster->uniform()),
   passes(), paths(), pattern(), cartesian_layer_meta_data(),
-  build_layer_z(std::numeric_limits<double>::quiet_NaN()),num_build_layers(-1), 
+  build_layer_z(std::numeric_limits<double>::quiet_NaN()),num_build_layers(-1),
   build_layer(0)
 {
    // This initializes random_park properly on each processor
@@ -75,7 +76,7 @@ void PottsAmPathParser::init_app_am()
    unique = new int[1 + maxneigh];
    dt_sweep = 1.0/maxneigh;
 
-   // Initialize sites which have value=-1 
+   // Initialize sites which have value=-1
    //   * uninitialized sites from stitch file
    //   * if value==-1, initialize to random spin value
    int flag = 0;
@@ -100,7 +101,7 @@ void PottsAmPathParser::initialize_layers_am()
    // Number of layers in script
    int num_pattern_layers=pattern.size();
 
-   // If num_build_layers has not been specified then 
+   // If num_build_layers has not been specified then
    //    it defaults to number of pattern layers
    if(-1==num_build_layers)
       num_build_layers=pattern.size();
@@ -156,7 +157,7 @@ bool PottsAmPathParser::app_update_am(double dt)
    } else {
       // Goto next layer
       build_layer++;
-      // Have we run out of layers? 
+      // Have we run out of layers?
       if(num_build_layers==build_layer){
          int my_rank;
          MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -263,7 +264,7 @@ void PottsAmPathParser::add_pass(int narg, char **arg)
    if(strcmp(arg[2],"dir")==0){
       if(strcmp(arg[3],"X")==0) d=DIR::X;
       else if(strcmp(arg[3],"Y")==0) d=DIR::Y;
-      else {error->all(FLERR,"Illegal pass 'dir' command. Expected 'X|Y.'"); } 
+      else {error->all(FLERR,"Illegal pass 'dir' command. Expected 'X|Y.'"); }
    } else {error->all(FLERR,"Illegal pass command. Expected 'dir.'");}
 
    if(strcmp(arg[4],"speed")==0){
@@ -281,7 +282,7 @@ void PottsAmPathParser::add_pass(int narg, char **arg)
       if(strcmp(arg[8],"overhatch")==0){
          overhatch=std::atof(arg[9]);
       } else {error->all(FLERR,"ERROR \'pass\' command. Expected \'overhatch' keyword.");}
-   } 
+   }
    passes[id]=Pass(d,speed,hatch,overhatch);
 }
 
@@ -323,7 +324,7 @@ void PottsAmPathParser::add_cartesian_layer(int narg, char **arg)
    } else {error->all(FLERR,"Illegal am_cartesian_layer command  Expected 'thickness.'");}
 
    /*
-    * OPTIONAL parameters beyond here; 
+    * OPTIONAL parameters beyond here;
     */
    if(narg>8){
       if(10==narg){
@@ -444,7 +445,7 @@ get_hatch(const Pass& p, START s, double offset_x, double offset_y) const
             hatch.push_back(y);
             y-=hatch_spacing;
          }
-      } 
+      }
    } else if(DIR::Y==dir){
       double ox=offset_x;
       if (START::LL==s || START::UL==s){
@@ -459,7 +460,7 @@ get_hatch(const Pass& p, START s, double offset_x, double offset_y) const
             hatch.push_back(x);
             x-=hatch_spacing;
          }
-      } 
+      }
    }
 
    // Requires c++-14
@@ -467,7 +468,7 @@ get_hatch(const Pass& p, START s, double offset_x, double offset_y) const
    return std::move(hatch);
 }
 
-vector<Path> 
+vector<Path>
 PottsAmPathParser::
 get_layer_paths(CartesianLayerMetaData& meta) const
 {
@@ -534,7 +535,7 @@ get_cvs(const vector<double>& hatch, const Pass& p, START s, int width_haz) cons
    //printf("PottsAmPathParser::get_cvs\n");
    //printf("\txlo=%8d,xhi=%8d,ylo=%8d,yhi=%8d\n",xlo,xhi,ylo,yhi);
    int cv_x0,cv_x1,cv_y0,cv_y1;
-   
+
    // Make HAZ width just slightly larger than input
    int width=static_cast<int>(1+width_haz/2);
    //printf("\twidth_haz=%8d,width=%8d",width_haz,width);
@@ -571,11 +572,11 @@ get_cvs(const vector<double>& hatch, const Pass& p, START s, int width_haz) cons
 void PottsAmPathParser::
 print_paths
 (
-   const string& filename, 
-   int num_layers, 
+   const string& filename,
+   int num_layers,
    int zstart,
-   int melt_depth, 
-   int width_haz, 
+   int melt_depth,
+   int width_haz,
    int depth_haz
 ) const
 {

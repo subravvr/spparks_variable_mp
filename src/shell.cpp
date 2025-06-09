@@ -35,7 +35,7 @@ void Shell::command(int narg, char **arg)
 
   if (strcmp(arg[0],"cd") == 0) {
     if (narg != 2) error->all(FLERR,"Illegal shell command");
-    int tmp = chdir(arg[1]);
+    chdir(arg[1]);
 
   } else if (strcmp(arg[0],"mkdir") == 0) {
     if (narg < 2) error->all(FLERR,"Illegal shell command");
